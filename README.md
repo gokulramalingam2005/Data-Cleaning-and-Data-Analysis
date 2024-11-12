@@ -1,63 +1,110 @@
-# EX-2 IMPLEMENTATION OF STOP AND WAIT PROTOCOL
+WORKSHOP
+Data-Cleaning-and-Data-Analysis
+AIM
+To read the given perform data cleaning and data analysis.
 
-# DATE: 13-03-2023
+Algorithm
+Perform Data cleaning process wherever necessary
 
-# AIM :
-## To write a python program to perform sliding window protocol
+Implement Boxplot method to detect outliers
 
+Implement IQR method to Remove Outliers
 
-# ALGORITHM :
-## 1. Start the program.
-## 2. Get the frame size from the user
-## 3. To create the frame based on the user request.
-## 4. To send frames to server from the client side.
-## 5. If your frames reach the server it will send ACK signal to client otherwise it will sendNACK signal to client.
+Implement Count plot method for univariate analysis
 
-## 6. Stop the program
+5.Implement DistPlot method for multivariate analysis
 
-# CLIENT PROGRAM :
-```PYTHON 3 
-## Developed : Gokul R
-## Reg no : 212222230039
-import socket
-s=socket.socket()
-s.bind(('localhost',8000))
-s.listen(5)
-c,addr=s.accept()
-size=int(input("Enter number of frames to send:"))
-l=list(range(size))
-s=int(input("Enter Window Size:"))
-st=0
-i=0
-while True:
-	while(i<len(l)):
-		st+=s
-		c.send(str(l[i:st]).encode())
-		ack=c.recv(1024).decode()
-		if ack:
-			print(ack)
-			i+=s
+Coding and Output
+Data cleaning process
 
-```
-# SERVER PROGRAM :
-```PYTHON 3
-import socket
-s=socket.socket()
-s.connect(('localhost',8000))
-while True:
-	print(s.recv(1024).decode())
-	s.send("acknowledgement recieved from the server".encode())
-```
+import pandas as pd
+data = pd.read_csv('supermarket.csv')
 
+print("Missing values in each column:")
+print(data.isnull().sum())
 
-# SERVER OUTPUT :
-![image](https://github.com/chetansathishkumar/EX-2/assets/75260837/8e0139ce-ed0b-4577-b636-c00b7ad89e29)
+duplicate_rows = data.duplicated().sum()
+print(f"\nNumber of duplicate rows: {duplicate_rows}")
 
-# CLIENT OUTPUT :
-![image](https://github.com/chetansathishkumar/EX-2/assets/75260837/861419fc-6880-48f3-9228-3ea3531ebfee)
+if duplicate_rows > 0:
+    data = data.drop_duplicates()
+if data['Date'].dtype == 'object':
+    data['Date'] = pd.to_datetime(data['Date'], format='%m/%d/%Y')
 
+data = data.drop(columns=['Invoice ID'], axis=1)
+print("\nData types after cleaning:")
+print(data.dtypes)
 
-# RESULT :
-## Thus, python program to perform stop and wait protocol was successfully executed.
+print("\nCleaned data preview:")
+print(data.head())
+Screenshot 2024-11-05 155342
 
+Boxplot
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Plotting boxplots
+plt.figure(figsize=(14, 6))
+
+plt.subplot(1, 3, 1)
+sns.boxplot(y=data['Unit price'])
+plt.title('Boxplot of Unit Price')
+
+plt.subplot(1, 3, 2)
+sns.boxplot(y=data['Total'])
+plt.title('Boxplot of Total')
+
+plt.subplot(1, 3, 3)
+sns.boxplot(y=data['Rating'])
+plt.title('Boxplot of Rating')
+
+plt.tight_layout()
+plt.show()
+Screenshot 2024-11-05 153754
+
+IQR method
+
+import pandas as pd
+
+# Load your dataset
+data = pd.read_csv('supermarket.csv')
+
+# Function to remove outliers using IQR
+def remove_outliers_iqr(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] >= lower_bound) & (df[column] <= upper_bound)]
+
+# Removing outliers for 'Unit price', 'Total', and 'Rating'
+for col in ['Unit price', 'Total', 'Rating']:
+    data = remove_outliers_iqr(data, col)
+
+# Display cleaned data shape
+print(data.shape)
+
+Screenshot 2024-11-05 153921
+
+Count plot method
+
+plt.figure(figsize=(8, 6))
+sns.countplot(data=data, x='Product line')
+plt.title('Count of Product Line')
+plt.xticks(rotation=45)
+plt.show()
+Screenshot 2024-11-05 153828
+
+DistPlot method
+
+sns.jointplot(x=data['Total'], y=data['Rating'], kind='scatter')
+plt.title('Total vs Rating')
+plt.show()
+
+Screenshot 2024-11-05 153843
+
+Result
+Thus we have cleaned the data and removed the outliers by Data cleaning process.
 
